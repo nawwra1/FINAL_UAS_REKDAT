@@ -850,7 +850,7 @@ if page == "Dashboard":
       <div class="section-title-light">STATISTIK APLIKASI</div>
       <div class="stats-grid">
         <div class="stat-card" id="card-model"><div class="stat-number">2</div><div class="stat-label">Model ML</div></div>
-        <div class="stat-card" id="card-fitur"><div class="stat-number">32</div><div class="stat-label">Fitur Kesehatan</div></div>
+        <div class="stat-card" id="card-fitur"><div class="stat-number">34</div><div class="stat-label">Fitur Kesehatan</div></div>
         <div class="stat-card" id="card-penyakit"><div class="stat-number">2</div><div class="stat-label">Jenis Penyakit</div></div>
         <div class="stat-card" id="card-risiko"><div class="stat-number">3</div><div class="stat-label">Level Risiko</div></div>
       </div>
@@ -901,7 +901,7 @@ if page == "Dashboard":
 
     var modalData={
       'card-model':{title:'🤖 2 Model Machine Learning',items:['Random Forest — model ensemble berbasis banyak pohon keputusan, unggul dalam akurasi dan tahan terhadap data yang tidak seimbang.','XGBoost — model ensemble berbasis gradient boosting yang membangun pohon keputusan secara bertahap untuk meningkatkan akurasi prediksi.']},
-      'card-fitur':{title:'📋 32 Fitur Kesehatan',items:['Data Demografis: usia, jenis kelamin, indeks massa tubuh (BMI).','Riwayat Medis: hipertensi, diabetes sebelumnya, riwayat keluarga penyakit jantung.','Hasil Lab: kadar gula darah puasa, kolesterol total, LDL, HDL, trigliserida.','Pengukuran Fisik: tekanan darah sistolik & diastolik, detak jantung istirahat.','Gaya Hidup: aktivitas fisik, kebiasaan merokok, konsumsi alkohol, pola tidur.','Gejala Klinis: nyeri dada, sesak napas, kelelahan tidak wajar, pembengkakan kaki.']},
+      'card-fitur':{title:'📋 34 Fitur Kesehatan',items:['Data Demografis: nama pasien, tanggal pemeriksaan, usia, jenis kelamin, indeks massa tubuh (BMI).','Riwayat Medis: hipertensi, diabetes sebelumnya, riwayat keluarga penyakit jantung.','Hasil Lab: kadar gula darah puasa, kolesterol total, LDL, HDL, trigliserida.','Pengukuran Fisik: tekanan darah sistolik & diastolik, detak jantung istirahat.','Gaya Hidup: aktivitas fisik, kebiasaan merokok, konsumsi alkohol, pola tidur.','Gejala Klinis: nyeri dada, sesak napas, kelelahan tidak wajar, pembengkakan kaki.']},
       'card-penyakit':{title:'🏥 2 Jenis Penyakit',items:['Penyakit Jantung — mencakup penyakit arteri koroner, gagal jantung, dan aritmia. Diprediksi berdasarkan fitur kardiovaskular dan gaya hidup.','Diabetes Tipe 2 — gangguan metabolisme gula darah kronis akibat resistensi insulin. Diprediksi berdasarkan kadar glukosa, BMI, usia, dan riwayat keluarga.']},
       'card-risiko':{title:'⚠️ 3 Level Risiko',items:['🟢 Risiko Rendah (di bawah 30%) — tetap jaga pola hidup sehat dan lakukan cek rutin tahunan.','🟡 Risiko Sedang (30–60%) — disarankan konsultasi dokter, ubah gaya hidup, dan pemeriksaan lebih lanjut.','🔴 Risiko Tinggi (di atas 60%) — segera konsultasi dokter spesialis untuk evaluasi medis menyeluruh.']}
     };
@@ -2111,6 +2111,7 @@ elif page == "Riwayat Prediksi":
             history_df["Checkup_Date"],
             errors="coerce"
         )
+
         history_df["Checkup_Date_Display"] = history_df["Checkup_Date"].dt.strftime("%d-%m-%Y")
 
         filter_col1, filter_col2, filter_col3 = st.columns(3)
@@ -2217,22 +2218,50 @@ elif page == "Riwayat Prediksi":
         </html>
         """, height=170, scrolling=False)
 
-        display_columns = [
-            "id","created_at","Patient_Name","Checkup_Date_Display",
-            "Age","Gender","Model_Used","Heart_Risk","Diabetes_Risk"
-        ]
-
-        display_df = filtered_df[display_columns].rename(columns={
+        display_df = filtered_df.rename(columns={
             "id": "ID",
             "created_at": "Waktu Tersimpan",
             "Patient_Name": "Nama Pasien",
-            "Checkup_Date_Display": "Tanggal Pemeriksaan",
+            "Checkup_Date": "Tanggal Pemeriksaan",
             "Age": "Umur",
             "Gender": "Jenis Kelamin",
+            "BMI": "BMI",
+            "Smoking_Status": "Status Merokok",
+            "Alcohol_Consumption": "Konsumsi Alkohol",
+            "Physical_Activity_Level": "Aktivitas Fisik",
+            "Diet_Type": "Tipe Diet",
+            "Family_History_CVD": "Riwayat Keluarga Jantung",
+            "Family_History_T2D": "Riwayat Keluarga Diabetes",
+            "Stress_Level": "Tingkat Stres",
+            "Depression_Score": "Skor Depresi",
+            "Anxiety_Score": "Skor Kecemasan",
+            "Social_Isolation_Index": "Indeks Isolasi Sosial",
+            "Sleep_Hours": "Jam Tidur",
+            "Sleep_Quality": "Kualitas Tidur",
+            "Waist_Circumference": "Lingkar Pinggang",
+            "Cholesterol": "Kolesterol",
+            "Glucose_Level": "Kadar Glukosa",
+            "HbA1c": "HbA1c",
+            "PRS_Cardiometabolic": "PRS Cardiometabolic",
+            "PRS_Type2Diabetes": "PRS Type2Diabetes",
+            "APOE_e4_Carrier": "APOE e4 Carrier",
+            "BRCA_Pathogenic_Variant": "BRCA Pathogenic Variant",
+            "Resting_Heart_Rate": "Denyut Jantung Istirahat",
+            "HRV": "HRV",
+            "Systolic_BP": "Tekanan Darah Sistolik",
+            "Diastolic_BP": "Tekanan Darah Diastolik",
+            "LDL": "LDL",
+            "HDL": "HDL",
+            "Triglycerides": "Trigliserida",
+            "CRP": "CRP",
+            "eGFR": "eGFR",
             "Model_Used": "Model Digunakan",
             "Heart_Risk": "Risiko Jantung",
             "Diabetes_Risk": "Risiko Diabetes"
         })
+
+        if "Checkup_Date" in display_df.columns:
+            display_df = display_df.drop(columns=["Checkup_Date"])
 
         risk_translation = {"Low": "Rendah", "Moderate": "Sedang", "High": "Tinggi"}
         display_df["Risiko Jantung"] = display_df["Risiko Jantung"].map(risk_translation)
