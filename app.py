@@ -191,7 +191,12 @@ def save_prediction_to_db(final_data, model_used, heart_risk, diabetes_risk):
         "Diabetes_Risk": diabetes_risk
     }
 
-    supabase.table("predictions").insert(data).execute()
+    try:
+        supabase.table("predictions").insert(data).execute()
+    except Exception as e:
+        st.error("Gagal menyimpan data ke Supabase.")
+        st.exception(e)
+        st.stop()
 
 
 def get_all_predictions():
