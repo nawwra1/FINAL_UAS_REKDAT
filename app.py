@@ -223,7 +223,7 @@ supabase = get_supabase_client()
 @st.dialog("Database Tersimpan")
 def show_success_popup():
     st.success("Hasil prediksi berhasil disimpan ke database.")
-    st.write("Data pasien dan hasil prediksi sudah masuk ke file SQLite.")
+    st.write("Data pasien dan hasil prediksi sudah masuk ke Supabase.")
     
     if st.button("OK"):
         st.session_state.show_db_popup = False
