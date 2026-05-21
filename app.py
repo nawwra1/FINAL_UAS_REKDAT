@@ -4,6 +4,7 @@ import pickle
 import sqlite3
 import textwrap
 from datetime import datetime
+from supabase import create_client
 
 # =========================
 # Konfigurasi halaman
@@ -146,84 +147,73 @@ def init_db():
 
 
 def save_prediction_to_db(final_data, model_used, heart_risk, diabetes_risk):
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
+    data = {
+        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "Patient_Name": final_data["Patient_Name"],
+        "Checkup_Date": final_data["Checkup_Date"],
 
-    cursor.execute("""
-    INSERT INTO predictions (
-        created_at,
-        Patient_Name,
-        Checkup_Date,
+        "Age": final_data["Age"],
+        "Gender": final_data["Gender"],
+        "BMI": final_data["BMI"],
+        "Smoking_Status": final_data["Smoking_Status"],
+        "Alcohol_Consumption": final_data["Alcohol_Consumption"],
+        "Physical_Activity_Level": final_data["Physical_Activity_Level"],
+        "Diet_Type": final_data["Diet_Type"],
+        "Family_History_CVD": final_data["Family_History_CVD"],
+        "Family_History_T2D": final_data["Family_History_T2D"],
+        "Stress_Level": final_data["Stress_Level"],
+        "Depression_Score": final_data["Depression_Score"],
+        "Anxiety_Score": final_data["Anxiety_Score"],
+        "Social_Isolation_Index": final_data["Social_Isolation_Index"],
+        "Sleep_Hours": final_data["Sleep_Hours"],
+        "Sleep_Quality": final_data["Sleep_Quality"],
+        "Waist_Circumference": final_data["Waist_Circumference"],
 
-        Age, Gender, BMI, Smoking_Status, Alcohol_Consumption,
-        Physical_Activity_Level, Diet_Type, Family_History_CVD,
-        Family_History_T2D, Stress_Level, Depression_Score,
-        Anxiety_Score, Social_Isolation_Index, Sleep_Hours,
-        Sleep_Quality, Waist_Circumference,
+        "Cholesterol": final_data["Cholesterol"],
+        "Glucose_Level": final_data["Glucose_Level"],
+        "HbA1c": final_data["HbA1c"],
+        "PRS_Cardiometabolic": final_data["PRS_Cardiometabolic"],
+        "PRS_Type2Diabetes": final_data["PRS_Type2Diabetes"],
+        "APOE_e4_Carrier": final_data["APOE_e4_Carrier"],
+        "BRCA_Pathogenic_Variant": final_data["BRCA_Pathogenic_Variant"],
+        "Resting_Heart_Rate": final_data["Resting_Heart_Rate"],
+        "HRV": final_data["HRV"],
+        "Systolic_BP": final_data["Systolic_BP"],
+        "Diastolic_BP": final_data["Diastolic_BP"],
+        "LDL": final_data["LDL"],
+        "HDL": final_data["HDL"],
+        "Triglycerides": final_data["Triglycerides"],
+        "CRP": final_data["CRP"],
+        "eGFR": final_data["eGFR"],
 
-        Cholesterol, Glucose_Level, HbA1c, PRS_Cardiometabolic,
-        PRS_Type2Diabetes, APOE_e4_Carrier, BRCA_Pathogenic_Variant,
-        Resting_Heart_Rate, HRV, Systolic_BP, Diastolic_BP,
-        LDL, HDL, Triglycerides, CRP, eGFR,
+        "Model_Used": model_used,
+        "Heart_Risk": heart_risk,
+        "Diabetes_Risk": diabetes_risk
+    }
 
-        Model_Used, Heart_Risk, Diabetes_Risk
-    )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (
-        datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        final_data["Patient_Name"],
-        final_data["Checkup_Date"],
-
-        final_data["Age"],
-        final_data["Gender"],
-        final_data["BMI"],
-        final_data["Smoking_Status"],
-        final_data["Alcohol_Consumption"],
-        final_data["Physical_Activity_Level"],
-        final_data["Diet_Type"],
-        final_data["Family_History_CVD"],
-        final_data["Family_History_T2D"],
-        final_data["Stress_Level"],
-        final_data["Depression_Score"],
-        final_data["Anxiety_Score"],
-        final_data["Social_Isolation_Index"],
-        final_data["Sleep_Hours"],
-        final_data["Sleep_Quality"],
-        final_data["Waist_Circumference"],
-
-        final_data["Cholesterol"],
-        final_data["Glucose_Level"],
-        final_data["HbA1c"],
-        final_data["PRS_Cardiometabolic"],
-        final_data["PRS_Type2Diabetes"],
-        final_data["APOE_e4_Carrier"],
-        final_data["BRCA_Pathogenic_Variant"],
-        final_data["Resting_Heart_Rate"],
-        final_data["HRV"],
-        final_data["Systolic_BP"],
-        final_data["Diastolic_BP"],
-        final_data["LDL"],
-        final_data["HDL"],
-        final_data["Triglycerides"],
-        final_data["CRP"],
-        final_data["eGFR"],
-
-        model_used,
-        heart_risk,
-        diabetes_risk
-    ))
-
-    conn.commit()
-    conn.close()
+    supabase.table("predictions").insert(data).execute()
 
 
 def get_all_predictions():
-    conn = sqlite3.connect(DB_NAME)
-    df = pd.read_sql_query("SELECT * FROM predictions ORDER BY id DESC", conn)
-    conn.close()
-    return df
+    response = (
+        supabase
+        .table("predictions")
+        .select("*")
+        .order("id", desc=True)
+        .execute()
+    )
 
-init_db()
+    return pd.DataFrame(response.data)
+
+# init_db()
+
+@st.cache_resource
+def get_supabase_client():
+    url = st.secrets["SUPABASE_URL"]
+    key = st.secrets["SUPABASE_KEY"]
+    return create_client(url, key)
+
+supabase = get_supabase_client()
 
 @st.dialog("Database Tersimpan")
 def show_success_popup():
